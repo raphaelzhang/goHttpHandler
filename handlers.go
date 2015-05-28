@@ -137,6 +137,7 @@ func (grw *gzipRespWriter) setHeader() {
 	}
 
 	grw.writer.Header().Set("Content-Encoding", "gzip")
+	grw.writer.Header().Add("Vary", "Accept-Encoding")
 	grw.writer.Header().Del("Content-Length")
 	grw.headerSet = true
 }
