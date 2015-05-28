@@ -2,8 +2,8 @@
 package goHttpHandler
 
 import (
-	"fmt"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	minGzipSize = 1024	
+	minGzipSize = 1024
 )
 
 var (
@@ -61,6 +61,10 @@ func (grw *gzipRespWriter) Header() http.Header {
 }
 
 func (grw *gzipRespWriter) Write(data []byte) (int, error) {
+	if h := grw.writer.Header(); h.Get("Content-Type") == "" {
+		h.Set("Content-Type", http.DetectContentType(data))
+	}
+
 	grw.checkContentLength()
 
 	if !grw.written {
@@ -167,13 +171,13 @@ func (grw *gzipRespWriter) canGzip(length int) bool {
 }
 
 type HttpLogGzipHandler struct {
-	impl http.Handler
+	impl      http.Handler
 	logWriter io.Writer
 }
 
-func NewHttpLogGzipHandler(handler http.Handler, writer io.Writer) *HttpLogGzipHandler{
-	return &HttpLogGzipHandler {
-		impl: handler,
+func NewHttpLogGzipHandler(handler http.Handler, writer io.Writer) *HttpLogGzipHandler {
+	return &HttpLogGzipHandler{
+		impl:      handler,
 		logWriter: writer,
 	}
 }
@@ -190,8 +194,8 @@ func (handler *HttpLogGzipHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	if len(referer) == 0 {
 		referer = "-"
 	}
-	
-	handler.logWriter.Write([]byte(fmt.Sprintf("%s %s %s %d %d/%d %dms %s '%s' %s", 
+
+	handler.logWriter.Write([]byte(fmt.Sprintf("%s %s %s %d %d/%d %dms %s '%s' %s",
 		ip, r.Method, r.RequestURI, gzipWriter.statusCode, gzipWriter.getBytesWritten(),
 		gzipWriter.origBytes, millis, referer, contentType, r.UserAgent())))
 }
