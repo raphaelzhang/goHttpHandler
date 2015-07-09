@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	gzipableContents = []string{"text/plain", "text/html", "text/css", "application/json", "application/javascript",
+	gzipableMimeTypes = []string{"text/plain", "text/html", "text/css", "application/json", "application/javascript",
 		"application/x-javascript", "text/xml", "application/xml", "application/xml+rss", "text/javascript"}
 )
 
@@ -157,7 +157,7 @@ func (grw *gzipRespWriter) canGzip(length int) bool {
 
 	gzipable := false
 	ct := grw.writer.Header().Get("Content-Type")
-	for _, gzipCt := range gzipableContents {
+	for _, gzipCt := range gzipableMimeTypes {
 		if ct == gzipCt || strings.HasPrefix(ct, gzipCt+"; ") {
 			gzipable = true
 			break
